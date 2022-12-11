@@ -8,15 +8,19 @@ import time
 import datetime
 import os
 
+# Страница авторизации АИС НСК
 urlLogin = 'https://agpz.sgaz.pro/faces/zeroLevelOOP'
+
+# Страница приложения с инспекциями
 urlWork = 'https://agpz.sgaz.pro/faces/page/contracts/48899/build-tracker/tasks'
 
+# Опции запуска Chrome driver
 options = Options()
-
 options.add_argument("--disable-extensions")
 
-
-driver = webdriver.Chrome(service='chromedriver', options=options)
+# Определение полного пути к драйверу хром
+path_crome_driver = os.getcwd() + os.sep + 'chromedriver'
+driver = webdriver.Chrome(service=path_crome_driver, options=options)
 
 
 def authorization():
@@ -28,6 +32,7 @@ def main():
     print(f'Переход на сайт: {urlLogin}')
 
     driver.get(urlLogin)
+    driver.maximize_window()    # Развернуть браузер на весь экран
     print(f'Получен заголовок сайта: {driver.title}')
 
     time.sleep(2)
