@@ -13,8 +13,8 @@ from fake_useragent import UserAgent
 
 config = configparser.ConfigParser()
 config.read('user.ini')
-lng = config.get('User Data', 'login')
-psw = config.get('User Data', 'Pass')
+lng = config.get('User Data', 'login')      # LOGIN
+psw = config.get('User Data', 'Pass')       # PASS
 
 # Страница завершения сеанса
 urlStop = 'https://agpz.sgaz.pro/http/utils/resourceServlet/adaptive/error/serverShutdown.html'
