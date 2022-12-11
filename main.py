@@ -1,12 +1,16 @@
+import os
+import datetime
+import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-import time
-import datetime
-import os
+from fake_useragent import UserAgent
+
+# Страница завершения сеанса
+urlStop = 'https://agpz.sgaz.pro/http/utils/resourceServlet/adaptive/error/serverShutdown.html'
 
 # Страница авторизации АИС НСК
 urlLogin = 'https://agpz.sgaz.pro/faces/zeroLevelOOP'
@@ -14,9 +18,13 @@ urlLogin = 'https://agpz.sgaz.pro/faces/zeroLevelOOP'
 # Страница приложения с инспекциями
 urlWork = 'https://agpz.sgaz.pro/faces/page/contracts/48899/build-tracker/tasks'
 
+# Информация об эмуляторе браузера
+useragent = UserAgent()
+
 # Опции запуска Chrome driver
 options = Options()
 options.add_argument("--disable-extensions")
+
 
 # Определение полного пути к драйверу хром
 path_crome_driver = os.getcwd() + os.sep + 'chromedriver'
@@ -28,16 +36,23 @@ def authorization():
 
 
 def main():
+    try:
+        print(f'Переход на сайт: {urlLogin}')
 
-    print(f'Переход на сайт: {urlLogin}')
+        driver.get(urlLogin)
+        driver.maximize_window()    # Развернуть браузер на весь экран
+        print(f'Получен заголовок сайта: {driver.title}')
 
-    driver.get(urlLogin)
-    driver.maximize_window()    # Развернуть браузер на весь экран
-    print(f'Получен заголовок сайта: {driver.title}')
+        time.sleep(2)
 
-    time.sleep(2)
+        authorization()
 
-    authorization()
+    except Exception as ex:
+        print(ex)
+
+    finally:
+        driver.quit
+        driver.close
 
 
 if __name__ == '__main__':
