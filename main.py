@@ -24,6 +24,9 @@ useragent = UserAgent()
 # Опции запуска Chrome driver
 options = Options()
 options.add_argument("--disable-extensions")
+options.add_argument('--headless')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
 
 
 # Определение полного пути к драйверу хром
