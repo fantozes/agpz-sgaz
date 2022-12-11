@@ -1,6 +1,8 @@
 import os
 import datetime
 import time
+import configparser
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -8,6 +10,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 from fake_useragent import UserAgent
+
+config = configparser.ConfigParser()
+config.read('user.ini')
+lng = config.get('User Data', 'login')
+psw = config.get('User Data', 'Pass')
 
 # Страница завершения сеанса
 urlStop = 'https://agpz.sgaz.pro/http/utils/resourceServlet/adaptive/error/serverShutdown.html'
@@ -35,7 +42,7 @@ driver = webdriver.Chrome(service=path_crome_driver, options=options)
 
 
 def authorization():
-    print(f'Авторизация LOGIN: "ваш_логин", PASS: {"*" * len("ваш_пароль")}')
+    print(f'Авторизация LOGIN: {lng}, PASS: {"*" * len(psw)}')
 
 
 def main():
