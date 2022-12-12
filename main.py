@@ -101,8 +101,8 @@ def main():
 
     finally:
         os.system('pause')
-        driver.quit
-        driver.close
+        driver.close()
+        driver.quit()
 
 
 if __name__ == '__main__':
@@ -121,18 +121,16 @@ if __name__ == '__main__':
     # Опции запуска Chrome driver:
     options = webdriver.ChromeOptions()
 
-    options.add_argument("--headless")                      #
-    options.add_argument("--no-sandbox")                    #
-    options.add_argument("--disable-dev-shm-usage")         #
     options.add_argument(f"user-agent={useragent.chrome}")  # User-Agent Браузера
+
+    options.add_argument("--headless")                      # Загружает заголовки сайта
+    options.add_argument("--no-sandbox")                    # 
+    options.add_argument("--disable-dev-shm-usage")         #
     options.add_argument("--disable-extensions")            # Опция при которой браузер открывается с отключенными расширениями
     options.add_argument("--start-maximized")               # Опция при которой браузер открывается на весь экран
-    options.add_argument("--disable-gpu")                   #
-    options.add_argument("--disable-setuid-sandbox")        #
-    options.add_argument("--ignore_ssl")                    #
+    options.add_argument("--disable-gpu")                   # Отключение использования GPU
     options.add_argument("--dns-prefetch-disable")          #
-
-    # options.add_argument("--no-proxy-server")
+    options.add_argument('--ignore-certificate-errors')     # Игнорировать ошибки сертификатов SSL
 
     # Отключение системы автоматизации контроля браузера
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -146,8 +144,7 @@ if __name__ == '__main__':
     # Запуск драйвера с установленными параметрами
     driver = webdriver.Chrome(
         executable_path=path_chrome_driver(),
-        chrome_options=options,
-        seleniumwire_options={'verify_ssl': False}
+        options=options
     )
 
     # Запуск основного макроса исполнения
