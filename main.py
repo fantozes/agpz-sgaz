@@ -1,9 +1,7 @@
 from seleniumwire import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-
 
 from fake_useragent import UserAgent
 from sys import platform
@@ -13,33 +11,7 @@ import datetime
 import time
 
 
-# Страница завершения сеанса
-urlStop = 'https://agpz.sgaz.pro/http/utils/resourceServlet/adaptive/error/serverShutdown.html'
-
-# Страница авторизации АИС НСК
-urlLogin = 'https://agpz.sgaz.pro/faces/zeroLevelOOP'
-
-# Страница приложения с инспекциями
-urlWork = 'https://agpz.sgaz.pro/faces/page/contracts/48899/build-tracker/tasks'
-
-# Информация об эмуляторе браузера
-useragent = UserAgent()
-
-# Опции запуска Chrome driver:
-options = Options()
-options.add_argument("--disable-extensions")        # Опция при которой браузер открывается с отключенными расширениями
-options.add_argument("--start-maximized")           # Опция при которой браузер открывается на весь экран
-options.add_argument("--no-sandbox")                # 
-options.add_argument("--disable-dev-shm-usage")     # 
-
-# Отключение системного логирования при исполнении кода
-options.add_experimental_option("excludeSwitches", ["enable-logging"])
-
-# Настройка для отображения экрана браузера
-options.headless = False
-
-
-def path_crome_driver():
+def path_chrome_driver():
     # Функция определяющая полного пути к драйверу
     if platform in ['linux1', 'linux2']:
         return os.getcwd() + os.sep + 'chromedriver'
@@ -48,25 +20,18 @@ def path_crome_driver():
         return os.getcwd() + os.sep + 'chromedriver.exe'
 
 
-path_crome_driver = os.getcwd() + os.sep + 'chromedriver'
-driver = webdriver.Chrome(executable_path=path_crome_driver, options=options)
-
-
 def authorization():
     # Функция авторизации на сайте
     driver.find_element(By.ID, 'loginInput').send_keys('KarasikDE')
     driver.find_element(By.ID, 'passInput').send_keys('Kar-2003')
     driver.find_element(By.ID, 'enter_btn').click()
 
-    for request in driver.requests:
-        if request.response:
-            if request.url.find('/j_security_check') > 0:
-                if request.response.status_code == 303:
-                    print('Авторизация OK')
-                    return
-                else:
-                    print('Неверный логин или пароль')
-                    raise
+    if find_request('/j_security_check') == 303:
+        print('Авторизация OK')
+        return
+    else:
+        print('Неверный логин или пароль')
+        raise
 
 
 def get_site(url):
@@ -74,25 +39,42 @@ def get_site(url):
     driver.get(url)
 
     while True:
-        for request in driver.requests:
-            if (request.url == url):
-                print(f'Получен заголовок сайта: {driver.title}')
-                a = request.response.status_code
-                if (a == 200):
-                    return
-                else:
-                    print(f'Ошибка загрузки сайта: {a} Перезагрузка...')
-                    driver.refresh()
-        time.sleep(2)
+        time.sleep(5)
+        a = find_request(url)
+        if a == 200:
+            print(f'Получен заголовок сайта: {driver.title}, Код ответа {a}')
+            return
+        else:
+            print(f'Ошибка загрузки сайта: {driver.title}, Код ответа {a}. Перезагрузка...')
+            driver.refresh()
+
+
+def find_request(url):
+    # Функция поиска кода страницы по адресу запроса
+    for request in driver.requests:
+        if request.url.find(url) >= 0:
+            return request.response.status_code
 
 
 def get_click(elem_cls, elem_name):
     # Процедура клика по элементам сайта
+    a = 3
     while True:
         try:
-            driver.find_elements(By.CLASS_NAME, 'elem_cls').find_element(By.XPATH,'elem_name').click()
+            time.sleep(10)
+            for elem in driver.find_elements(By.CLASS_NAME, elem_cls):
+                if elem.text == elem_name:
+                    elem.click()
+                    return
+            raise
+
         except:
-            time.sleep(2)
+            if a == 0:
+                print(f'Не удалось нажать на кнопку {elem_name} в разделе {elem_cls}')
+                raise
+            else:
+                print(f'Ожидание загрузки кнопки {elem_name} в разделе {elem_cls}. попыток осталось {a}')
+                a -= 1
 
 
 def main():
@@ -107,6 +89,11 @@ def main():
         print(f'Переход на сайт: {urlWork}')
         get_site(urlWork)
 
+        print('Нажатие на кнопку <<Добавить инспекцию>>')
+        get_click(elem_cls='af_toolbar_item', elem_name='add')
+
+        print('Нажатие на кнопку << RFI (строительный контроль)>>')
+        get_click(elem_cls='af_commandToolbarButton_text', elem_name='RFI (строительный контроль)')
 
     except Exception as ex:
         print(ex)
@@ -119,4 +106,49 @@ def main():
 
 
 if __name__ == '__main__':
+    # Страница завершения сеанса
+    urlStop = 'https://agpz.sgaz.pro/http/utils/resourceServlet/adaptive/error/serverShutdown.html'
+
+    # Страница авторизации АИС НСК
+    urlLogin = 'https://agpz.sgaz.pro/faces/zeroLevelOOP'
+
+    # Страница приложения с инспекциями
+    urlWork = 'https://agpz.sgaz.pro/faces/page/contracts/48899/build-tracker/tasks'
+
+    # Информация об эмуляторе браузера
+    useragent = UserAgent()
+
+    # Опции запуска Chrome driver:
+    options = webdriver.ChromeOptions()
+
+    options.add_argument("--headless")                      #
+    options.add_argument("--no-sandbox")                    #
+    options.add_argument("--disable-dev-shm-usage")         #
+    options.add_argument(f"user-agent={useragent.chrome}")  # User-Agent Браузера
+    options.add_argument("--disable-extensions")            # Опция при которой браузер открывается с отключенными расширениями
+    options.add_argument("--start-maximized")               # Опция при которой браузер открывается на весь экран
+    options.add_argument("--disable-gpu")                   #
+    options.add_argument("--disable-setuid-sandbox")        #
+    options.add_argument("--ignore_ssl")                    #
+    options.add_argument("--dns-prefetch-disable")          #
+
+    # options.add_argument("--no-proxy-server")
+
+    # Отключение системы автоматизации контроля браузера
+    options.add_argument("--disable-blink-features=AutomationControlled")
+
+    # Отключение системного логирования при исполнении кода
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+
+    # Настройка для отображения экрана браузера
+    options.headless = False
+
+    # Запуск драйвера с установленными параметрами
+    driver = webdriver.Chrome(
+        executable_path=path_chrome_driver(),
+        chrome_options=options,
+        seleniumwire_options={'verify_ssl': False}
+    )
+
+    # Запуск основного макроса исполнения
     main()
