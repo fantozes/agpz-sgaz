@@ -1,4 +1,4 @@
-from seleniumwire import webdriver
+from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -141,11 +141,22 @@ if __name__ == '__main__':
     # Настройка для отображения экрана браузера
     options.headless = False
 
+    service = Service(path_chrome_driver())
+
+
     # Запуск драйвера с установленными параметрами
     driver = webdriver.Chrome(
-        executable_path=path_chrome_driver(),
+        service=service,
         options=options
     )
 
+    driver.get('https://www.whatismybrowser.com/detect/what-is-my-user-agent/')
+
+    
+
+    os.system('pause')
+    driver.close()
+    driver.quit()
+
     # Запуск основного макроса исполнения
-    main()
+    # main()
